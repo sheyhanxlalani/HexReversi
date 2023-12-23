@@ -1,0 +1,355 @@
+-------
+OVERVIEW
+
+The codebase is the implementation of the two-player Reversi game,
+specifically on a hexagon grid. The players take turns placing discs of their
+color (black or white) on the grid).
+
+The primary goal is to capture the all of opponent's discs by sandwiching them
+with your own discs.
+
+-------
+QUICKSTART
+
+To get started, with the current codebase, a user can create a test method
+
+@Test
+public void testOne() {
+    provider.model.reversi.cs3500.ReversiModel hexGame = new HexReversi(2); // size of 2
+    TextualView view1 = new HexReversiTextualView(hexGame);
+
+    // to start the game
+    hexGame.gameStarted();
+
+    // to display the game in textual view
+    view1.toString(); (you may need to use an assert(?)
+
+    Cell cell1 = hexGame.getCell(-1, -1);
+    hexGame.makeMove(cell1);
+}
+
+--------
+KEY COMPONENTS
+
+1. MODEL : represent the game state and enforces the game rules
+    - Board: manage the hexagonal grid of cells, depending on the given size (user's input).
+    - Rules: handling turn switch (switch players), determines legal moves,
+    and flippable discs.
+
+    * Functionality:
+    - gameStarted() : start the game, set the initial state for the reversi game, which black and
+    white discs around the center (this is considered size of 1).
+    - initializeBoard(int size): initialize the board for the game with the given size.
+    - makeMove(Cell clicked) and its helpers: use to check if the clicked cell is a valid move, if
+    so, flip all the opposing discs in maximum of 6 directions surrounding that clicked cell.
+    - isGameOver() : check if the game is over with the following conditions:
+        + if there is 2 pass in a row, which is being tracked in throughout the game
+        by a int variables (countPass).
+        + if the board is full, then game is over.
+      * returnWinner(): if the game is over, then return the winner, by counting if who has more
+       discs on the board.
+    - wannaPass(): is responsible for checking if the current player has any valid move,
+    if not pass, and the countPass is also incremented.
+    - getSize(): return the given size of the game board
+    - getCell(): get the cell at the given q and r.
+    - switchPlayer(): switch turn of the players.
+    - cellExists(): checking if the cell exists on the board, given that not all the coordinates
+     being checked in the loop exist.
+
+2. TEXTUAL VIEW : visualize the game state for the user using text. (Render the game to state to a
+string).
+    - 'X': represent black discs.
+    - 'O': represent white discs.
+    - '_': represent an empty cell.
+
+    *Functionality:
+        + toString() : gives us a representation of the view
+        + render(); shows the user a visualization of the model (which will be used when we
+        implement the controller later).
+
+
+3. PLAYER INTERFACE:
+- Identification:
+    + getPlayerID();
+    + getPlayerName()?
+
+- Command controller:
+    + makeMove(Cell clicked) - the player clicks on the cell, and it activates the makeMove mehtod
+    in the model (?)
+- Update gameSate:
+    + updateGameState(): current player turn? move is valid? or pass?
+- Handling game result: who is the winner, loser, or tie.
+- Display message: display message like "It is your turn", "You win!", "You lose!", "Game tie!",
+"Pass"
+- Setting preferences? either black or white
+- userPass- if no valid move for the current player or the player wants to pass.
+
+
+......
+KEY SUBCOMPONENTS:
+1. Coordinate system:
+    - Using the pointy-top hexagon to display.
+    - Using the cubic coordinate system for the hexagonal cells.
+      -> this coordinate system is also used to determine legal moves and cell adjacency.
+
+2. Discs:
+    - Represent an individual hexagon cell of the grid, can having one of these 3 states:
+    empty ('_'), black ('X'), white ('O').
+
+-------
+SOURCE ORGANIZATION:
+*SRC:
+    - game:
+        + contains the representation of a cell, which extends HexCoordinate class
+        + a provider.model.reversi.cs3500.ReversiModel interface: a representation of a reversi game.
+        + a HexReversi class: a representation of a Hexagonal reversi game, which implements the
+        provider.model.reversi.cs3500.ReversiModel
+        + a HexCoordinate class: which represents a hexagon coordinate system.
+    - player: (later use for Player implementation) - it can be changed later
+        + Player interface: represents a player
+        + AIPlayer : represents the AI player
+        + HumanPlayer: represents the Human Player
+    - view:
+        + TextualView interface: represent a textual view of something
+        + HexReversiTextualView: represent a textual view of a HexReversi game.
+
+*TEST:
+    - ReversiModelTest: contains tests for the our Reversi model
+    - ReversiTextualTest: contains tests for the Reversi Textual display.
+
+
+/////////////////
+Change for part 2:
+    - We added getBoard(), which will create a copy of a board.
+     Originally, we did not have a method that return a copy of a board. We added this because if
+     we implement view and strategy, we do not want to actually modify the board itself.
+    - added getScore(), which will return the score of the current player.
+     We want to be able to display the score of each player so we implement this method.
+    - added the methods in the cell class like setSelected to change the selection state
+    of the cell -> for changing the color of the cell as the user select it or deselect it.
+
+//////////////
+PART 2:
+
+We refactor our model interface into a readOnly interface so that the player won't accidentally
+delete it. It contains the following methods:
+  int[] getScores();
+  Set<Cell> getBoard();
+  boolean isGameOver() throws IllegalStateException;
+  int getSize();
+  Cell getCell(int q, int r);
+  boolean cellExists(int q, int r);
+  HexReversi.GameState returnWinner();
+  HexReversi.GameState getCurrentPlayer();
+  boolean isValidMove(Cell cell, HexReversi.GameState player);
+and other methods are still in the regular interface because they will modify the board.
+  /**
+   * get the captured cells for this move.
+   * @param cell - the selected cell.
+   * @param player - the current player.
+   * @return
+   */
+  int getCaptureCells(Cell cell, HexReversi.GameState player);
+
+  /**
+   * if there is no more valid move, pass.
+   * if there are two passes in a row, game is over.
+   */
+  void wannaPass();
+
+
+New classes:
+---Strategy:
+I added a new interface called provider.strategy.reversi.cs3500.ReversiStrategy, which contains the determineMove method that
+will return the best move for the current player according to the strategy that they want to use.
+- Avoid corner is the representation of the avoid corner strategy. There is a determineMove method
+that return the best move (which avoid the corners of the board)
+- Corner strategy is the representation of the go for corner strategy. There is a determineMove
+method that try to find any corner that is not occupied. If there is no corner available. It
+fallbacks to the valid move available.
+- MaxCaptureStrategy is the representation of the "capture the most discs of the opponent"
+strategy. The determineMove method is trying to get the best move that will capture the most discs
+of the opponent.
+
+*NOTES:
+- For each strategy, we throw an exception if there is no best move available for
+the current player. To pass, we want to catch the exception in the player's implementation
+and call the wannPass method in the model.
+
+-----VIEW:
+- The user can move around using up, down, right, left keys.
+- If they want to pass, the user can hit the ENTER key and it will call the method wannaPass
+from the model.
+
+
+/// EXTRA CREDIT:
+- Besides MaxCaptureStrategy, we implemented the avoid corner strategy, get corner strategy and
+and minimax strategy and a way to combine it together.
+- It is in the strategy folder with 5 classes and 1 interface.
+*Notes about jar : we tried to download it on Handin but it has something with security on mac
+but when we clicked on the file itself (we already put it in a different foler), it works perfectly
+fine. (
+
+
+
+/////////////////////////
+CHANGE FOR PART 3:
+- We modified the keyEvent for the enter case and space case to work with the controller instead of
+model directly.
+- To add listener to the HexReversi and pass in the JHexReversiPanel, We separate the
+ initialization of JPanel into a helper function to pass in the listener and call it in the
+ HexReveresiView constructor.
+
+------- for PART 3:
+We have added the two interfaces called:
+- ModelActionListener: This defines the listener for the model.
+- PlayerActionListener: This defines the listener for the player's action.
+- provider.view.reversi.cs3500.ViewFeatures: This defines the listener for any changes made on the view.
+- Controller (implements the 3 above): the controller is an intermediary between the model
+and the view.
+    + It handles events trigger by user interaction on the view, such as key Press and
+    mouse clicks. When the user clicked on the cell, it selects the cell. If the user wanna move
+    around, they can use the arrow keys. To execute the move on the selected cell, they must hit
+    the Enter key. To pass, they must hit the Space key.
+    + After the users execute the move, the controller will udpate the model accordingly.
+    + The controller also receives update form the model and update the view to reflect the current
+    state of the game.
+    + the controller also interact with the players. Each player will have its own controller.
+Also added PlayerColor used to distinguish between the two players of the reversi game.
+We implemented the HumanPlayer and AIPlayer.
+- HumanPlayer: Handles actions made by a human player. This use mouseclicks and keyEvents to input
+from the user interface.
+    + Sends the selected cell coordinate to the controller, which will update the model.
+    + It also receive notifications pop up from the controller and view about the current state of
+    the game.
+* IMPORTANT TIP:
++ When the user clicks on a cell (or move around to select a cell), the user will have to hit the
+ENTER key to actually execute the move.
++ If there is no valid move, the user can hit the SPACE key to pass the turn. Noted that they
+cannot pass a turn if there is still at least one valid move.
+
+- AIPlayer:
+    + The AI player makes decisions automatically, based on the reversi strategy, which were
+    implemented in the previous homework).
+    + It does not require use input to make moves.
+
+---- Configuration tips:
+To run configuration: it should be "size player1Type player2Type"
+For example: 2 human human
+      - For the game with a size of 2, 2 human players
+             3 aimaxcapture aigetcorner
+      - For the game with a size of 3, 1 AI player with max capture strategy
+                                       1 AI player with get corner strategy.
+
+             3 human aiminimax3
+      - For the game with a size of 3, 1 human player
+                                       1 AI player using minimax strategy with 3 in depth.
+
+* For jar file: default values are a game size of 3,
+1 human player and 1 AI player using max capture strategy
+* if you want to place your first move on the black player. You must also click on the
+view for the second player.
+
+
+
+*****************HW8*****************************
+* What did we change for the customer's code:
+    - We refactor the enum classes such as GameState and PlayerState (which were inside the model
+    and cell) into their own separate classes.
+    - We also create the ICell interface which helps the customers to work with our cell easier.
+    - Additionally, since their view doesn't need Cell clicks, so we added a condition on the JPanel
+    class to work with us only.
+    - Moreover, we also changed our implementation on Minimax strategy so that it returns a clone
+    of the model. Originally, we have it directly return the new HexReversi. But, then we created a
+    method to
+
+----------------------------------------------------
+ * Things that we were able to get working with and unable to:
+ - We were able to adapt the controller, model, and mostly view.
+ - Their definition of view is different than ours so it makes this assignment more challenging.
+ Additionally, the providers were unwilling to change their implementation to make this assignment
+ work.
+ The given size is used to determine the maximum row width in their code.
+    + For example, if the given size is 3, their maximum row is 3 but our maximum row is 7.
+    + The size determines the radius of the board (which excludes the middle cell), not the diameter.
+    + We did manage to draw the board by adapting their getBoardSize() method into our model.
+    However, because they also use this method to calculate their offset for view. So the board image
+    is not correctly overlay the actual board:
+       double x = (double) (size * (this.model.getBoardSize() - 1)) / 2 + buffer / 2;
+       double y = (double) (size * (this.model.getBoardSize() - 1)) / 2;
+       int widthNeg = (model.getBoardSize() / -2);
+       int widthPos = (model.getBoardSize() / 2);
+    The getBoardSize method is used in both types of values. We have reached out to the provider to
+    ask if the can change their offset but they said it would make their code dysfunction elsewhere.
+
+Due to time constrain, it took us a lot of time trying to figure out about the view offset since the
+providers are not willing to modify their code. We couldn't figure out what happened with our AI and
+their strategy.
+
+We got the human player to work with the provider's code (although the view was a bit offset). If
+you play a move on our view (Hexagon Reversi Game) it will update on the provider's view if you click
+on their board (the invisible board on the top left corner).
+AI Player is actually harder to implement. The issue with using the controller adapter is different
+implementation to make move. Our controller adapter implements both of our controller's interfaces
+and their interfaces. Furthermore, the inability to see the view properly especially in regards to
+cells that had inappropriate coordinates. Without actual implementation, it was hard to see how
+their implementation of their controller and how it interacts with their AI and player. Additionally,
+their strategy have different interfaces to support "as helpers"  (according to them),
+which makes it hard to adapt our strategies which are more tightly coupled under one interface.
+
+
+------------------------------------------------------
+ - Example configuration to support the provider's code.
+                            5 human providerhuman
+                            5 human providerai1
+ 5 is size
+ player 1: our human
+ player 2: provider's code -> AI -> provider's strategy number 1 -> PlaceForHighestScoreStrategy
+
+
+//EXTRA CREDIT
+Coordinate Definitions:
+- q (Column): Represents the column of the cell. Columns are usually counted
+from left to right, starting with 0.
+- r (Row): Represents the row of the cell. Rows are typically counted from top
+to bottom, starting with 0.
+Board Layout: For a board of size 8 (like a standard Reversi board), the coordinates would be as follows:
+
++ Top-left cell: (0, 0)
++ Top-right cell: (7, 0)
++ Bottom-left cell: (0, 7)
++ Bottom-right cell: (7, 7)
+
+    0     1     2     3     4      5    6     7
+0 (0,0) (1,0) (2,0) (3,0) (4,0) (5,0) (6,0) (7,0)
+1 (0,1) (1,1) (2,1) (3,1) (4,1) (5,1) (6,1) (7,1)
+2 (0,2) (1,2) (2,2) (3,2) (4,2) (5,2) (6,2) (7,2)
+3 (0,3) (1,3) (2,3)   X     O   (5,3) (6,3) (7,3)
+4 (0,4) (1,4) (2,4)   O     X   (5,4) (6,4) (7,4)
+5 (0,5) (1,5) (2,5) (3,5) (4,5) (5,5)  6,5) (7,5)
+6 (0,6) (1,6) (2,6) (3,6) (4,6) (5,6) (6,6) (7,6)
+7 (0,7) (1,7) (2,7) (3,7) (4,7) (5,7) (6,7) (7,7)
+
+**********New configuration:
+ 8    square    human   aimaxcapture
+size boardType player1 player2
+
+- For Level 0: I added a new class called HintDecorator, which implements the reversi model and
+has a Reversimodel delegates. This hint decorator wraps around the reversi model in the main class,
+which can be removed easily if not wanted.
+    + The paintComponent in HexReversiView is not much affected. Only drawHints and keyEvents to
+    enable the hints were added. It doesn't impact on how the board is rendered.
+- For level 1: I added a SquareReversi class, implements the ReversiModel. I also added
+SquareTextualView and tests (in test folder, it is named SquareReversiTest)
+- For level 2: I added a SquareReversiView, which implements ReversiView. I also added
+JSquareReversiPanel.
+- For level 3: I don't have to change much. Since my coordinate system for cell is pretty abstract:
+only 2 coordinates (q, r), which can be used as x and y. The only difference is how the board is
+initialized.
+- For level 4: I added an enum class called BoardType, which includes 2 variants of Reversi game
+such as Hexagonal Reversi game and Square Reversi game. The AvoidCorner and GetCorner strategies
+were adjusted so that their constructors take in a BoardType parameter. Since the numbers of corner
+in both boards are different (Hex -> 6, Square -> 4). The other strategies stay the same since they
+are generic and work for both types of board.
+
+

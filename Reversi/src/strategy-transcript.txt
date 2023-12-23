@@ -1,0 +1,39 @@
+Strategy retrieved the board:
+Checking move: 2, 1
+Checking move: 0, 0
+Checking move: -2, -1
+Checking move: -2, 0
+Checking move: 0, 2
+Checking move: -2, 1
+Get captured cells for: -2, 1
+Checking move: 0, 3
+Checking move: -2, 2
+Checking move: -2, 3
+Checking move: 3, -3
+Checking move: 3, -2
+Checking move: 1, -3
+Checking move: 3, -1
+Checking move: 1, -2
+Get captured cells for: 1, -2
+Checking move: 3, 0
+Checking move: -1, -2
+Checking move: -1, -1
+Get captured cells for: -1, -1
+Checking move: 1, 1
+Get captured cells for: 1, 1
+Checking move: 1, 2
+Checking move: -3, 0
+Checking move: -1, 2
+Get captured cells for: -1, 2
+Checking move: -3, 1
+Checking move: -1, 3
+Checking move: -3, 2
+Checking move: -3, 3
+Checking move: 2, -3
+Checking move: 2, -2
+Checking move: 0, -3
+Checking move: 2, -1
+Get captured cells for: 2, -1
+Checking move: 0, -2
+Checking move: 2, 0
+Chosen Move: 1, -2

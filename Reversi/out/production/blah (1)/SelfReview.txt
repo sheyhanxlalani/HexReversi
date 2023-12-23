@@ -1,0 +1,30 @@
+This assignment was extremely time consuming and really pushed our limits in terms of our ability
+to visualize code, organize our design, improve our model, and how much caffeine we could drink in
+one day. Ultimately, we learned so much about how projects in the real world would actually look
+like, and the addition of someone else’s code really challenged us to truly understand the
+interworking of our own model, view, and controller in order to adapt it to our provider’s. Upon
+finishing this assignment, we wish we had made improvements in the following ways. We could have
+improved our structure of our enums by making them separate from the model and the cell. Putting
+both enums in these classes made implementation challenging and redundant.
+
+Additionally, we could have improved the Cell implementation by making all of our cell enums into
+one interface to loosen the coupling between the different states of the cells. Focusing on the
+actual model implementation, looking at other implementations and the given resources, we realized
+our board’s coordinates were actually flipped. When instantiating our board, we built it by
+adding cells to a list and assigned coordinates to them in a spiral. This ended up actually making
+our coordinates flipped which was easy for us to understand, but we ran into some trouble when
+creating the view was well as collaborating with others. The updates we had to make our customers
+were mostly related to refactoring our code to be compatible with theirs in addition to the cell
+coordinates being flipped which we explained to our customers.
+
+In regard to experiences with our providers, they were very responsive but they were not willing
+to modify their code to help with our implementation. All we really needed was for them to implement
+one simple getter method. When we were interacting with our customers, we were willing to change
+a lot of code to help them, however, our providers seemed unwilling and refused to help saying
+"it was not a good idea" and that his partner said "no and just to document it". It was very
+frustrating for us to have to go through this as it says in the assignment “If there is a need to
+know the implementations of certain classes from your model package and if those classes do not
+implement explicit interfaces, it likely means the coupling is tighter than it needs to be.
+If this is the case for the code that you share with your customer group, you will need to correct
+it and send the customers updated code. You can expect the same customer service from your provider
+group.” This is taken directly from assignment.

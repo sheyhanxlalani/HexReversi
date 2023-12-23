@@ -1,0 +1,41 @@
+--------------------------
+PEER REVIEW
+
+The code provided to us for the Reversi Game application was a good foundation for us to work
+with. It had plenty of interfaces for the Model, PlayerAction, Features, GameState, Cell,
+and PlayerState, as well as good implementation for the view and strategies. These structures
+interacted with our model to create the game logic and user interface using both our and their
+model interfaces, player action interfaces, feature interfaces, gamestate interfaces es, cell
+interfaces, and PlayerState interfaces that interacted with our model and controller to work with
+our and their views. The interfaces of our provider are moderately flexible, however they can be
+improved in some ways.
+
+In the model interface, there is a method for checking the player of each cell called getTileAt
+which takes in a Custom2D point, which is a coordinate on their view. However, they then have a
+second method in the same interface checking if the spot they clicked is empty in isSpotEmpty that
+also takes in a Custom2D point. We believed these methods could be condensed into one to make the
+code more efficient. We also noticed that in the Strategies class, each strategy had its own
+interface which we thought could be made into one interface without the coupling being too tight.
+Additionally, we believe there could’ve been better usage of the observer pattern in regards to
+event handling specifically in design methods like onPlayerTurnChanged or onGameOver. We believe
+they could have used the observer pattern to generalize these events that encapsulates various
+types of events, and observers can be specified with a game event object.
+
+Another part of the code we saw improvement for was implementing the the ability for the users
+to interact more the keyEvents to move around and distinguish the situation that the user uses key
+to pass or execute a selected cell. Finally, we just had a few areas where we thought it was
+hard to read the code because of long methods with no helpers which reduces the readability of
+the code. Both the paintComponent and draw functions of the HexagonPanel class are very long
+and could have been more easily broken up. While they work perfectly fine, the only problem for us
+was readability and understanding the code for or implementation. Additionally, we think that they
+could add more features for the view such as the ability to show whose turn it is or
+indicate the player's color.
+
+
+With that being said, overall, we thought the provider’s did give a decent implementation of
+the game. It was readable for the most part and provided a lot of effective interfaces. We were
+especially thankful for the model interfaces being relatively short and compatible with our model
+implementation. While we did have to make some helpers in order for our adapter class to work, we
+always were sure of what each method did thanks to their extensive javadocs and read me files.
+Our providers made this assignment easier to implement because of these features with minimal
+errors or room for improvement.
